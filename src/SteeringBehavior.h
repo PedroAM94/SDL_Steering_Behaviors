@@ -9,6 +9,7 @@ class SteeringBehavior
 public:
 	SteeringBehavior();
 	~SteeringBehavior();
+	void DrawRadius(Vector2D target, int radius);
 	Vector2D KinematicSeek(Agent *agent, Vector2D target, float dtime);
 	Vector2D KinematicSeek(Agent *agent, Agent *target, float dtime);
 	Vector2D KinematicFlee(Agent *agent, Vector2D target, float dtime);

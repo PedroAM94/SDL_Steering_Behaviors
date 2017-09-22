@@ -11,6 +11,10 @@ SteeringBehavior::~SteeringBehavior()
 {
 }
 
+void SteeringBehavior::DrawRadius(Vector2D target, int radius) {
+	draw_circle(TheApp::Instance()->getRenderer(), (int)target.x, (int)target.y, radius, 0, 255, 0, 255);
+}
+
 Vector2D SteeringBehavior::KinematicSeek(Agent *agent, Vector2D target, float dtime)
 {
 	Vector2D steering = target - agent->position;
@@ -69,22 +73,28 @@ Vector2D SteeringBehavior::Flee(Agent *agent, Agent *target, float dtime)
 
 Vector2D SteeringBehavior::Arrival(Agent *agent, Vector2D target, int number, float dtime)
 {
-	float slowingRadius = 55;
-	draw_circle(TheApp::Instance()->getRenderer(), (int)target.x, (int)target.y, slowingRadius, 0, 255, 0, 255);
-	Vector2D desiredVelocity = agent->getPosition() - target;
+	float slowingRadius = 150;
+	Vector2D steeringForce;
+	//DrawRadius(target, slowingRadius);
+	Vector2D desiredVelocity = target - agent->getPosition();
+	
 	float magnitude = sqrt((desiredVelocity.x * desiredVelocity.x) + (desiredVelocity.y * desiredVelocity.y));
-	float factor = magnitude / slowingRadius;
-	if (magnitude < slowingRadius) {
+
+	if (magnitude > slowingRadius) {
 		desiredVelocity.Normalize();
-		desiredVelocity *= agent->getMaxVelocity() * factor;
+		desiredVelocity *= agent->getMaxVelocity();	
+		//Seek(agent, target, dtime);
+		draw_circle(TheApp::Instance()->getRenderer(), (int)target.x, (int)target.y, slowingRadius, 0, 255, 0, 255);
 	}
 	else{
+		float factor = magnitude / slowingRadius;
 		desiredVelocity.Normalize();
-		desiredVelocity *= agent->getMaxVelocity();
+		desiredVelocity *= agent->getMaxVelocity() * factor;
+		draw_circle(TheApp::Instance()->getRenderer(), (int)target.x, (int)target.y, slowingRadius, 0, 0, 255, 255);
 	}
-	Vector2D steeringForce = (agent->getVelocity()- desiredVelocity);
+	steeringForce = (desiredVelocity - agent->getVelocity());
 	steeringForce /= agent->getMaxVelocity();
-	return steeringForce * agent->max_force;
+	return steeringForce * agent->getMaxForce();
 }
 
 Vector2D SteeringBehavior::Arrival(Agent *agent, Agent *target, int number, float dtime)
