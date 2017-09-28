@@ -113,3 +113,15 @@ Vector2D SteeringBehavior::Pursue(Agent *agent, Agent *target, float dtime)
 	steeringForce /= agent->getMaxVelocity();
 	return steeringForce * agent->max_force;
 }
+
+Vector2D SteeringBehavior::Evade(Agent *agent, Agent *target, float dtime)
+{
+	float timePrediction = (target->getPosition() - agent->getPosition()).Length() / agent->getMaxVelocity();
+	Vector2D targetPrediction = target->getPosition() + target->getVelocity() * timePrediction;
+	Vector2D desiredVelocity = agent->getPosition() - targetPrediction;
+	desiredVelocity.Normalize();
+	desiredVelocity *= agent->getMaxVelocity();
+	Vector2D steeringForce = (desiredVelocity - agent->getVelocity());
+	steeringForce /= agent->getMaxVelocity();
+	return steeringForce * agent->max_force;
+}
