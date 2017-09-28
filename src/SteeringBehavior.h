@@ -24,6 +24,7 @@ public:
 	Vector2D Arrival(Agent *agent, Agent *target,int number, float dtime);
 	Vector2D Pursue(Agent *agent, Agent *target, float dtime);
 	Vector2D Evade(Agent *agent, Agent *target, float dtime);
+	Vector2D Wander(Agent*agent, float angle, float wanderMaxChange,float radius,float dtime);
 	//etc...
 
 };

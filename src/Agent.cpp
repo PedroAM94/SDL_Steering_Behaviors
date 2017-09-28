@@ -47,6 +47,21 @@ Vector2D Agent::getVelocity()
 	return velocity;
 }
 
+float Agent::getWanderOffset() {
+	return wander_offset;
+}
+void Agent::setWanderOffset(float a) {
+	wander_offset = a;
+}
+
+float Agent::getWanderAngle() {
+	return wander_angle;
+}
+
+void Agent :: setWanderAngle(float a) {
+	wander_angle = a;
+}
+
 float Agent::getMaxForce() {
 	return max_force;
 }

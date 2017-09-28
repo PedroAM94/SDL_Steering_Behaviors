@@ -125,3 +125,16 @@ Vector2D SteeringBehavior::Evade(Agent *agent, Agent *target, float dtime)
 	steeringForce /= agent->getMaxVelocity();
 	return steeringForce * agent->max_force;
 }
+
+Vector2D SteeringBehavior::Wander(Agent*agent, float angle, float wanderMaxChange, float radius, float dtime) 
+{
+	float randomMax = rand() % (int)wanderMaxChange;
+	agent->setWanderAngle(agent->getWanderAngle()+ randomMax);
+	Vector2D newPos;
+	newPos.x = (agent->getVelocity().Normalize()*agent->getWanderOffset()).x  + radius*cos(agent->getWanderAngle());
+	newPos.y = (agent->getVelocity().Normalize()*agent->getWanderOffset()).y + radius*sin(agent->getWanderAngle());
+	
+	agent->setTarget(newPos);
+
+ 	return Seek(agent, newPos, dtime);
+}

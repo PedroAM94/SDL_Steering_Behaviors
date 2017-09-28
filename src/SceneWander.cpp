@@ -9,12 +9,14 @@ SceneWander::SceneWander()
 	agent->setTarget(Vector2D(640, 360));
 	agent->setMass(0.035);
 	agent->loadSpriteTexture("../res/soldier.png", 4);
+	agent->setWanderOffset(70);
+	agent->setWanderAngle(0.0f);
 	agents.push_back(agent);
 	target = Vector2D(640, 360);
-	wanderMaxChange = 50;
-	wanderCircleOffset = 70;
+	wanderMaxChange = 20;
+	//wanderCircleOffset = 70;
 	wanderCircleRadius = 80;
-	wanderAngle = 0.0f;
+	//wanderAngle = 0.0f;
 	wanderCircleCenter = {};
 	wanderDisplacementVector = {};
 }
@@ -43,15 +45,18 @@ void SceneWander::update(float dtime, SDL_Event *event)
 		break;
 	}
 	Vector2D velocity = agents[0]->getVelocity();
+
 	float angle = (float)(atan2(velocity.y, velocity.x) * RAD2DEG);
-	Vector2D steering_force = agents[0]->Behavior()->Wander(agents[0], angle, &wanderAngle, wanderMaxChange,
-		wanderCircleOffset, wanderCircleRadius, dtime);
+
+	Vector2D steering_force = agents[0]->Behavior()->Wander(agents[0], angle, wanderMaxChange, wanderCircleRadius, dtime);
 	agents[0]->update(steering_force, dtime, event);
 }
 
 void SceneWander::draw()
 {
 	agents[0]->draw();
+	draw_circle(TheApp::Instance()->getRenderer(), (int)agents[0]->getTarget().x, (int)agents[0]->getTarget().y, 15, 255, 0, 0, 255);
+
 }
 
 const char* SceneWander::getTitle()

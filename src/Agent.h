@@ -23,7 +23,8 @@ private:
 	float orientation;
 	float max_force;
 	float max_velocity;
-
+	float wander_angle;
+	float wander_offset;
 	SDL_Color color;
 
 	SDL_Texture *sprite_texture;
@@ -39,6 +40,10 @@ public:
 	Vector2D getPosition();
 	Vector2D getTarget();
 	Vector2D getVelocity();
+	float getWanderOffset();
+	void setWanderOffset(float a);
+	float getWanderAngle();
+	void setWanderAngle(float a);
 	float getMaxVelocity();
 	float getMaxForce();
 	void setPosition(Vector2D position);
