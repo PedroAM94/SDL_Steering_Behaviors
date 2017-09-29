@@ -26,10 +26,10 @@ public:
 	Vector2D Evade(Agent *agent, Agent *target, float dtime);
 	Vector2D Wander(Agent*agent, float angle, float wanderMaxChange,float radius,float dtime);
 	Vector2D PerimeterAvoidance(Agent* agent);
-	Vector2D Flocking(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS);
-	Vector2D Separation(Agent* agent,std::vector<Agent> agents,float NEIGHBOUR_RADIUS);
-	Vector2D Cohesion(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS);
-	Vector2D Allignment(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS);
+	Vector2D Flocking(Agent* agent, std::vector<Agent*> agents, float NEIGHBOUR_RADIUS);
+	Vector2D Separation(Agent* agent,std::vector<Agent*> agents,float NEIGHBOUR_RADIUS);
+	Vector2D Cohesion(Agent* agent, std::vector<Agent*> agents, float NEIGHBOUR_RADIUS);
+	Vector2D Allignment(Agent* agent, std::vector<Agent*> agents, float NEIGHBOUR_RADIUS);
 	//etc...
 
 };

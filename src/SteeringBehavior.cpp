@@ -187,13 +187,13 @@ Vector2D SteeringBehavior::PerimeterAvoidance(Agent* agent) {
 	return steeringForce;
 }
 
-Vector2D SteeringBehavior::Separation( Agent* agent,std::vector<Agent> agents,float NEIGHBOUR_RADIUS) {
+Vector2D SteeringBehavior::Separation( Agent* agent,std::vector<Agent*> agents,float NEIGHBOUR_RADIUS) {
 	int neighbourCount = 0;
 	Vector2D separationVector = {};
-	for each (Agent a in agents) {
-		if (a.getPosition() != agent->getPosition() || a.getVelocity() != agent->getVelocity()) {
-			if (Vector2D::Distance(a.getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
-				separationVector += agent->getPosition() - a.getPosition();
+	for (int i = 0; i < (int)agents.size(); i++) {
+		if (agents[i]->getPosition() != agent->getPosition() || agents[i]->getVelocity() != agent->getVelocity()) {
+			if (Vector2D::Distance(agents[i]->getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
+				separationVector += agent->getPosition() - agents[i]->getPosition();
 				++neighbourCount;
 			}
 		}
@@ -203,12 +203,12 @@ Vector2D SteeringBehavior::Separation( Agent* agent,std::vector<Agent> agents,fl
 	return separationVector.Normalize();
 }
 
-Vector2D SteeringBehavior::Cohesion(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS) {
+Vector2D SteeringBehavior::Cohesion(Agent* agent, std::vector<Agent*> agents, float NEIGHBOUR_RADIUS) {
 	int neighbourCount = 0;
 	Vector2D averagePosition = {};
-	for each (Agent a in agents) {
-		if (a.getPosition() != agent->getPosition() || a.getVelocity() != agent->getVelocity()) {
-			if (Vector2D::Distance(a.getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
+	for (int i = 0; i < (int)agents.size(); i++) {
+		if (agents[i]->getPosition() != agent->getPosition() || agents[i]->getVelocity() != agent->getVelocity()) {
+			if (Vector2D::Distance(agents[i]->getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
 				averagePosition += agent->getPosition();
 				++neighbourCount;
 			}
@@ -219,27 +219,26 @@ Vector2D SteeringBehavior::Cohesion(Agent* agent, std::vector<Agent> agents, flo
 	averagePosition -= agent->getPosition();
 	return averagePosition.Normalize();
 }
-Vector2D SteeringBehavior::Allignment(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS) {
+Vector2D SteeringBehavior::Allignment(Agent* agent, std::vector<Agent*> agents, float NEIGHBOUR_RADIUS) {
 	int neighbourCount = 0;
 	Vector2D averageVelocity = {};
-	for each (Agent a in agents) {
-		if (a.getPosition() != agent->getPosition() || a.getVelocity() != agent->getVelocity()) {
-			if (Vector2D::Distance(a.getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
+	for (int i = 0; i < (int)agents.size(); i++) {
+		if (agents[i]->getPosition() != agent->getPosition() || agents[i]->getVelocity() != agent->getVelocity()) {
+			if (Vector2D::Distance(agents[i]->getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
 				averageVelocity += agent->getVelocity();
 				++neighbourCount;
 			}
 		}
 	}
-
 	averageVelocity /= neighbourCount;
 	return averageVelocity.Normalize();
 }
 
-Vector2D SteeringBehavior::Flocking(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS) {
-	float K_SEPARATION_FORCE = 0.4f;
-	float K_COHESION_FORCE = 0.4f;
-	float K_ALIGNMENT_FORCE = 0.2f;
+Vector2D SteeringBehavior::Flocking(Agent* agent, std::vector<Agent*> agents, float NEIGHBOUR_RADIUS) {
+	float K_SEPARATION_FORCE = 1.7f;
+	float K_COHESION_FORCE = 1.0f;
+	float K_ALIGNMENT_FORCE = 0.6f;
 
 
-	return Separation(agent, agents, NEIGHBOUR_RADIUS)*K_SEPARATION_FORCE + Cohesion(agent, agents, NEIGHBOUR_RADIUS) * K_COHESION_FORCE + Allignment(agent, agents, NEIGHBOUR_RADIUS)* K_ALIGNMENT_FORCE;
+	return (Separation(agent, agents, NEIGHBOUR_RADIUS)*K_SEPARATION_FORCE + Cohesion(agent, agents, NEIGHBOUR_RADIUS) * K_COHESION_FORCE + Allignment(agent, agents, NEIGHBOUR_RADIUS)* K_ALIGNMENT_FORCE)*agent->getMaxForce();
 }
