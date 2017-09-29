@@ -13,7 +13,7 @@ SceneWander::SceneWander()
 	agent->setWanderAngle(0.0f);
 	agents.push_back(agent);
 	target = Vector2D(640, 360);
-	wanderMaxChange = 20;
+	wanderMaxChange = 50;
 	//wanderCircleOffset = 70;
 	wanderCircleRadius = 80;
 	//wanderAngle = 0.0f;

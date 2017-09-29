@@ -34,6 +34,7 @@ private:
 	int sprite_h;
 
 public:
+	float timer;
 	Agent();
 	~Agent();
 	SteeringBehavior *Behavior();
@@ -54,5 +55,4 @@ public:
 	void update(Vector2D steering_force, float dtime, SDL_Event *event);
 	void draw();
 	bool Agent::loadSpriteTexture(char* filename, int num_frames=1);
-	
 };

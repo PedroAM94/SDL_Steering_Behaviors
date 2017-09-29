@@ -1,5 +1,5 @@
 #include "SteeringBehavior.h"
-
+#include <vector>
 
 
 SteeringBehavior::SteeringBehavior()
@@ -19,24 +19,24 @@ Vector2D SteeringBehavior::KinematicSeek(Agent *agent, Vector2D target, float dt
 {
 	Vector2D steering = target - agent->position;
 	steering.Normalize();
-	return steering * agent->max_velocity;
+	return steering * agent->max_velocity + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::KinematicSeek(Agent *agent, Agent *target, float dtime)
 {
-	return KinematicSeek(agent, target->position, dtime);
+	return KinematicSeek(agent, target->position, dtime) + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::KinematicFlee(Agent *agent, Vector2D target, float dtime)
 {
 	Vector2D steering = agent->position - target;
 	steering.Normalize();
-	return steering * agent->max_velocity;
+	return steering * agent->max_velocity + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::KinematicFlee(Agent *agent, Agent *target, float dtime)
 {
-	return KinematicFlee(agent, target->position, dtime);
+	return KinematicFlee(agent, target->position, dtime) + PerimeterAvoidance(agent);
 }
 
 /* Add here your own Steering Behavior functions definitions */
@@ -48,12 +48,12 @@ Vector2D SteeringBehavior::Seek(Agent *agent, Vector2D target, float dtime)
 	desiredVelocity *= agent->getMaxVelocity();
 	Vector2D steeringForce = (desiredVelocity - agent->getVelocity());
 	steeringForce /= agent->getMaxVelocity();
-	return steeringForce * agent->max_force;
+	return steeringForce * agent->max_force + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::Seek(Agent *agent, Agent *target, float dtime)
 {
-	return Seek(agent, target->position, dtime);
+	return Seek(agent, target->position, dtime) + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::Flee(Agent *agent, Vector2D target, float dtime)
@@ -63,12 +63,12 @@ Vector2D SteeringBehavior::Flee(Agent *agent, Vector2D target, float dtime)
 	desiredVelocity *= agent->getMaxVelocity();
 	Vector2D steeringForce = (desiredVelocity - agent->getVelocity());
 	steeringForce /= agent->getMaxVelocity();
-	return steeringForce * agent->max_force;
+	return steeringForce * agent->max_force + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::Flee(Agent *agent, Agent *target, float dtime)
 {
-	return Flee(agent, target->position, dtime);
+	return Flee(agent, target->position, dtime) + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::Arrival(Agent *agent, Vector2D target, int number, float dtime)
@@ -94,12 +94,12 @@ Vector2D SteeringBehavior::Arrival(Agent *agent, Vector2D target, int number, fl
 	}
 	steeringForce = (desiredVelocity - agent->getVelocity());
 	steeringForce /= agent->getMaxVelocity();
-	return steeringForce * agent->getMaxForce();
+	return steeringForce * agent->getMaxForce() + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::Arrival(Agent *agent, Agent *target, int number, float dtime)
 {
-	return Arrival(agent, target->position, number, dtime);
+	return Arrival(agent, target->position, number, dtime) + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::Pursue(Agent *agent, Agent *target, float dtime)
@@ -111,7 +111,7 @@ Vector2D SteeringBehavior::Pursue(Agent *agent, Agent *target, float dtime)
 	desiredVelocity *= agent->getMaxVelocity();
 	Vector2D steeringForce = (desiredVelocity - agent->getVelocity());
 	steeringForce /= agent->getMaxVelocity();
-	return steeringForce * agent->max_force;
+	return steeringForce * agent->max_force + PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::Evade(Agent *agent, Agent *target, float dtime)
@@ -123,18 +123,123 @@ Vector2D SteeringBehavior::Evade(Agent *agent, Agent *target, float dtime)
 	desiredVelocity *= agent->getMaxVelocity();
 	Vector2D steeringForce = (desiredVelocity - agent->getVelocity());
 	steeringForce /= agent->getMaxVelocity();
-	return steeringForce * agent->max_force;
+	return (steeringForce * agent->max_force) +PerimeterAvoidance(agent);
 }
 
 Vector2D SteeringBehavior::Wander(Agent*agent, float angle, float wanderMaxChange, float radius, float dtime) 
 {
-	float randomMax = rand() % (int)wanderMaxChange;
-	agent->setWanderAngle(agent->getWanderAngle()+ randomMax);
-	Vector2D newPos;
-	newPos.x = (agent->getVelocity().Normalize()*agent->getWanderOffset()).x  + radius*cos(agent->getWanderAngle());
-	newPos.y = (agent->getVelocity().Normalize()*agent->getWanderOffset()).y + radius*sin(agent->getWanderAngle());
-	
-	agent->setTarget(newPos);
 
- 	return Seek(agent, newPos, dtime);
+		Vector2D circleCenter = agent->getPosition() + agent->getVelocity().Normalize()*agent->getWanderOffset();
+		DrawRadius(circleCenter, radius);
+
+	if (agent->timer > 0.5f)
+	{
+		//float randomMax = (rand() % (int)wanderMaxChange - rand() % (int)wanderMaxChange);
+		float randomMax = (rand() % ((int)wanderMaxChange*2) - (int)wanderMaxChange);
+
+		//float randomMax = rand()*wanderMaxChange;
+
+
+		agent->setWanderAngle((agent->getWanderAngle() + randomMax));
+
+		Vector2D newPos;
+		//newPos.x = newPos.y = 0;
+		//
+		newPos.x = (agent->getPosition() + agent->getVelocity().Normalize()*agent->getWanderOffset()).x + radius*cos((agent->getWanderAngle())*DEG2RAD);
+		newPos.y = (agent->getPosition() + agent->getVelocity().Normalize()*agent->getWanderOffset()).y + radius*sin((agent->getWanderAngle())*DEG2RAD);
+		//
+		agent->setTarget(newPos);
+
+		agent->timer = 0;
+		return Seek(agent, newPos, dtime) + PerimeterAvoidance(agent);
+	}
+	agent->timer += dtime;
+	return Seek(agent, agent->getTarget(), dtime) + PerimeterAvoidance(agent);
+
+
+}
+
+Vector2D SteeringBehavior::PerimeterAvoidance(Agent* agent) {
+	Vector2D perimeter = TheApp::Instance()->getWinSize();
+	float perimeterBorder = 100;
+	Vector2D desiredVelocity = (0, 0);
+	Vector2D steeringForce = (0,0);
+
+	if (agent->position.x < perimeterBorder) {
+		desiredVelocity.x = agent->getMaxVelocity();
+	}
+	else if (agent->position.x>perimeter.x - perimeterBorder) {
+		desiredVelocity.x = -agent->getMaxVelocity();
+
+	}
+	if (agent->position.y<perimeterBorder) {
+		desiredVelocity.y = agent->getMaxVelocity();
+	}
+	else if (agent->position.y>perimeter.y-perimeterBorder) {
+		desiredVelocity.y = -agent->getMaxVelocity();
+
+	}
+	if (desiredVelocity.Length()>0.0f){
+		steeringForce = desiredVelocity - agent->getVelocity();
+		steeringForce /= agent->getMaxVelocity();
+		steeringForce *= agent->getMaxForce();
+	}
+	return steeringForce;
+}
+
+Vector2D SteeringBehavior::Separation( Agent* agent,std::vector<Agent> agents,float NEIGHBOUR_RADIUS) {
+	int neighbourCount = 0;
+	Vector2D separationVector = {};
+	for each (Agent a in agents) {
+		if (a.getPosition() != agent->getPosition() || a.getVelocity() != agent->getVelocity()) {
+			if (Vector2D::Distance(a.getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
+				separationVector += agent->getPosition() - a.getPosition();
+				++neighbourCount;
+			}
+		}
+	}
+
+	separationVector /= neighbourCount;
+	return separationVector.Normalize();
+}
+
+Vector2D SteeringBehavior::Cohesion(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS) {
+	int neighbourCount = 0;
+	Vector2D averagePosition = {};
+	for each (Agent a in agents) {
+		if (a.getPosition() != agent->getPosition() || a.getVelocity() != agent->getVelocity()) {
+			if (Vector2D::Distance(a.getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
+				averagePosition += agent->getPosition();
+				++neighbourCount;
+			}
+		}
+	}
+
+	averagePosition /= neighbourCount;
+	averagePosition -= agent->getPosition();
+	return averagePosition.Normalize();
+}
+Vector2D SteeringBehavior::Allignment(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS) {
+	int neighbourCount = 0;
+	Vector2D averageVelocity = {};
+	for each (Agent a in agents) {
+		if (a.getPosition() != agent->getPosition() || a.getVelocity() != agent->getVelocity()) {
+			if (Vector2D::Distance(a.getPosition(), agent->getPosition()) < NEIGHBOUR_RADIUS) {
+				averageVelocity += agent->getVelocity();
+				++neighbourCount;
+			}
+		}
+	}
+
+	averageVelocity /= neighbourCount;
+	return averageVelocity.Normalize();
+}
+
+Vector2D SteeringBehavior::Flocking(Agent* agent, std::vector<Agent> agents, float NEIGHBOUR_RADIUS) {
+	float K_SEPARATION_FORCE = 0.4f;
+	float K_COHESION_FORCE = 0.4f;
+	float K_ALIGNMENT_FORCE = 0.2f;
+
+
+	return Separation(agent, agents, NEIGHBOUR_RADIUS)*K_SEPARATION_FORCE + Cohesion(agent, agents, NEIGHBOUR_RADIUS) * K_COHESION_FORCE + Allignment(agent, agents, NEIGHBOUR_RADIUS)* K_ALIGNMENT_FORCE;
 }
