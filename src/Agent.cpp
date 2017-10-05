@@ -130,6 +130,31 @@ void Agent::update(Vector2D steering_force, float dtime, SDL_Event *event)
 	if (position.y > TheApp::Instance()->getWinSize().y) position.y = 0;
 }
 
+void Agent::update(Vector2D steering_force, float dtime)
+{
+
+	//cout << "agent update:" << endl;
+
+
+	Vector2D acceleration = steering_force / mass;
+	velocity = velocity + acceleration * dtime;
+	velocity = velocity.Truncate(max_velocity);
+
+	position = position + velocity * dtime;
+
+
+	// Update orientation
+	orientation = (float)(atan2(velocity.y, velocity.x) * RAD2DEG);
+
+
+	// Trim position values to window size
+	if (position.x < 0) position.x = TheApp::Instance()->getWinSize().x;
+	if (position.y < 0) position.y = TheApp::Instance()->getWinSize().y;
+	if (position.x > TheApp::Instance()->getWinSize().x) position.x = 0;
+	if (position.y > TheApp::Instance()->getWinSize().y) position.y = 0;
+}
+
+
 void Agent::draw()
 {
 	if (draw_sprite)

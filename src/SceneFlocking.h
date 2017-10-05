@@ -13,6 +13,7 @@ public:
 	void draw();
 	int wanderMaxChange = 80;
 	int wanderCircleOffset = 80;
+	int numZombies = 20;
 	int wanderCircleRadius = 70;
 	float wanderAngle = 0.0f;
 	const char* getTitle();
